@@ -76,8 +76,17 @@ private:
     int _binarySearch(Node *node, keyType key)
     {
         int left = 0;
-        int right = node->size;
+        int right = node->size - 1;
         int search = -1;
+        if (compare(key, node->data[0].first))
+        {
+            return 0;
+        }
+        else if (compare(node->data[node->size - 1].first, key))
+        {
+            return node->size - 1;
+        }
+
         while (left <= right)
         {
             unsigned mid = (left + right) / 2;
@@ -86,25 +95,20 @@ private:
                 search = mid;
                 break;
             }
-            else if (compare(key, node->data[mid].first))
-                right = mid - 1;
-            else
+            else if (node->data[mid].first < key and node->data[mid + 1].first > key)
+            {
+                search = mid;
+                break;
+            }
+            else if (compare(node->data[mid].first, key))
                 left = mid + 1;
+            else
+                right = mid - 1;
         }
 
         return search;
     }
-
-    unsigned _findIndex(Node *node, keyType key)
-    {
-        unsigned i = 0;
-        while (i < node->size && compare(node->data[i].first, key))
-        {
-            i++;
-        }
-        return i;
-    }
-
+    
     std::pair<Node *, unsigned> _search(keyType key)
     {
         Node *node = root;
@@ -113,7 +117,7 @@ private:
             int i = _binarySearch(node, key);
             if (i == -1)
             {
-                i = _findIndex(node, key);
+                return std::make_pair(nullptr, 0);
             }
             if (i < node->size and !(compare(key, node->data[i].first) or compare(node->data[i].first, key)))
             {
